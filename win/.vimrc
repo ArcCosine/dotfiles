@@ -95,7 +95,7 @@ NeoBundle 'zeis/vim-kolor'
 "NeoBundle 'ruby-matchit'
 NeoBundle 'kien/ctrlp.vim'
 "NeoBundle 'migemo'
-NeoBundle 'yuratomo/weather.vim'
+"NeoBundle 'yuratomo/weather.vim'
 NeoBundle 'git://vim-latex.git.sourceforge.net/gitroot/vim-latex/vim-latex'
 NeoBundle 'junegunn/seoul256.vim'
 NeoBundle 'mattn/habatobi-vim'
@@ -549,4 +549,15 @@ let g:ctrlp_open_new_file       = 1   " 新規ファイル作成時にタブで�
 "fancyテーマに切り替え
 let g:Powerline_symbols = 'fancy'
 
+"For New Weather plugin
+function! s:EseWether()
+	let url ='http://weather.livedoor.com/forecast/webservice/json/v1?city=130010'
+	let json = webapi#json#decode(webapi#http#get(url).content)
+	for data in json.forecasts
+		if data.dateLabel == "今日"
+			echo json.title . "  " . data.dateLabel .  "  " . data.telop . "  最高気温  " . data.temperature.max.celsius . "度"
+		endif
+	endfor
+endfunction
+command! -nargs=0 EseWether call s:EseWether()
 
