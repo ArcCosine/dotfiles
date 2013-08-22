@@ -81,6 +81,8 @@ NeoBundle 'zeis/vim-kolor'
 NeoBundle 'matchit.zip'
 NeoBundle 'ruby-matchit'
 NeoBundle 'kien/ctrlp.vim'
+NeoBundle 'sjl/gundo.vim'
+NeoBundle 'ArcCosine/weather.vim'
 
 filetype plugin indent on     " required!
 
@@ -103,71 +105,10 @@ let g:neocomplcache_enable_at_startup=1
 
 
 "" reloadable vimrc
-nnoremap <silent> ,r :<C-u>source $MYVIMRC \| if has('gui_running') \| source $MYGVIMRC \| endif <CR>
+nnoremap <silent> ,r :<C-u>source $MYVIMRC \| if has('gui_running') \| source $MYGVIMRC \| endif<CR>
 
 "" for unite
 let g:unite_enable_start_insert=0
-
-"Key Mapping
-
-"From kana_1's vimrc
-command! -nargs=* Cnmap  call s:cmd_Cmap('n', '', [<f-args>])
-
-function! s:cmd_Cmap(prefix, suffix, args)
-	" FIXME: This parsing may not be compatible with the original one.
-	let [options, rest] = s:separate_list(a:args,
-	\ '^\c<\(buffer\|expr\|script\|silent\|special\|unique\|count\|noexec\)>$')
-	if len(rest) < 2
-		throw 'Insufficient number of arguments: ' . string(rest)
-	endif
-	let lhs = rest[0]
-	let script = rest[1:]
-	let count_p = s:contains_p(options, '^\c<count>$')
-	let noexec_p = s:contains_p(options,'^\c<noexec>>$')
-	call filter(options, 'v:val !~# ''^\c<\(count\|noexex\)>$''')
-
-	execute a:prefix.'noremap'.a:suffix join(options) lhs
-	\ ':'.(count_p ? '' : '<C-u>') . join(script) . (noexec_p ? '' : '<Return>')
-endfunction
-
-
-"色々
-let s:FALSE = 0
-let s:TRUE = !s:FALSE
-
-function! s:separate_list(list, regexp)
-	let i = 0
-	while i < len(a:list) && a:list[i] =~# a:regexp
-		let i += 1
-	endwhile
-	return [(0 < i ? a:list[:i-1] : []), a:list[(i):]]
-endfunction
-
-
-function! s:contains_p(list, regexp)
-	for item in a:list
-		if item =~# a:regexp
-			return s:TRUE
-		endif
-	endfor
-	return s:FALSE
-endfunction
-
-
-function! s:count(...)
-	if v:count == v:count1  " is count given?
-		return v:count
-	else  " count isn't given.  (the default '' is useful for
-		special value)
-		return a:0 == 0 ? '' : a:1
-	endif
-endfunction
-
-nnoremap <SID>[ug] <Nop>
-nmap ,u <SID>[ug]
-
-
-
 
 " set unite keymaping
 nnoremap <SID>[ug] <Nop>
@@ -204,6 +145,7 @@ au BufNewFile,BufRead *.yml set tabstop=2 shiftwidth=2
 au BufNewFile,BufRead *.js set tabstop=2 shiftwidth=2 ft=javascript fenc=utf-8
 au BufNewFile,BufRead *.css set tabstop=2 shiftwidth=2
 au BufNewFile,BufRead *.html set tabstop=2 shiftwidth=2
+au BufNewFile,BufRead *.php set tabstop=2 shiftwidth=2
 
 "for javascript
 autocmd FileType javascript set tabstop=2 expandtab shiftwidth=2
@@ -231,53 +173,9 @@ nnoremap q: <Nop>
 nnoremap q/ <Nop>
 nnoremap q? <Nop> 
 
-"for tab
-" Move new tabpage at the last.
-Cnmap <silent> <C-t>n  tabnew \| tabmove
-Cnmap <silent> <C-t>c  tabclose
-Cnmap <silent> <C-t>C  tabclose!
-Cnmap <silent> <C-t>o  tabonly
-Cnmap <silent> <C-t>i  tabs
-
-nmap <C-t><C-n>  <C-t>n
-nmap <C-t><C-c>  <C-t>c
-nmap <C-t><C-o>  <C-t>o
-nmap <C-t><C-i>  <C-t>i
-
-
-Cnmap <silent> <C-t>T  TabpageTitle
-
-" Moving around tabpages.  "{{{3
-Cnmap <silent> <C-t>j
-			\ execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')
-Cnmap <silent> <C-t>k  Qexecute tabprevious [count]
-Cnmap <silent> <C-t>K  tabfirst
-Cnmap <silent> <C-t>J  tablast
-
-nmap <C-t><C-j>  <C-t>j
-nmap <C-t><C-k>  <C-t>k
-nmap <C-t><C-t>  <C-t>j
-
-
-cnoremap <C-a> <Home>
-" 一文字戻る
-cnoremap <C-b> <Left>
-" カーソルの下の文字を削除
-cnoremap <C-d> <Del>
-" 行末へ移動
-cnoremap <C-e> <End>
-" 一文字進む
-cnoremap <C-f> <Right>
-" コマンドライン履歴を一つ進む
-cnoremap <C-n> <Down>
-" コマンドライン履歴を一つ戻る
-cnoremap <C-p> <Up>
-" 前の単語へ移動
-cnoremap <M-b> <S-Left>
-" 次の単語へ移動
-cnoremap <M-f> <S-Right>
-
-
+" Tab change
+nnoremap <C-j> :<C-u>tabn<CR>
+nnoremap <C-k> :<C-u>tabp<CR>
 
 " For vimtweet
 "let g:tweetvim_display_icon=1
@@ -340,14 +238,8 @@ vnoremap <Leader>C <Esc>:call CommentMark(0,'<','>')<CR>
 " For neosnippet
 imap <C-k>     <Plug>(neosnippet_expand_or_jump)
 smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-
-"no preview
 set completeopt-=preview
 
-"For open browser
-let g:netrw_nogx = 1 " disable netrw's gx mapping.
-nmap gx <Plug>(openbrowser-smart-search)
-vmap gx <Plug>(openbrowser-smart-search)
 "For open browser
 nmap <Leader>o <Plug>(openbrowser-open)
 vmap <Leader>o <Plug>(openbrowser-open)
@@ -466,18 +358,29 @@ call unite#custom_action('file', 'my_vsplit', my_action)
 
 "" vim-quickrun
 let g:quickrun_config = {
-\	"rb" : {
-\		"command" : "ruby",
-\		"runner" : "vimproc",
-\		"exec" : "%c %s"
+\	'rb' : {
+\		'command' : 'ruby',
+\		'runner' : 'vimproc',
+\		'exec' : '%c %s'
 \	},
-\	"javascript" : {
-\		"command" : "ant",
-\		"runner" : "vimproc",
-\       "cmdopt" : "-f ~/Sites/custom/build/build.xml test_discovery",
-\		"exec" : "%c %o"
-\	}
+\	'javascript' : {
+\		'command' : 'ant',
+\		'runner' : 'vimproc',
+\       'hook/cd/enable' : 1,
+\       'hook/cd/directory' : '~/Sites/custom/build',
+\       'cmdopt' : '-f ~/Sites/custom/build/build.xml test_suggestion',
+\		'exec' : '%c %o'
+\	},
+\   'php.unit' : {
+\		'runner' : 'vimproc',
+\		'runner/vimproc/updatetime' : '100',
+\       'command' : 'phpunit',
+\       'outputter' : 'phpunit_outputter',
+\   }
 \}
+
+
+"\       'cmdopt' : '-f ~/Sites/custom/build/build.xml test_discovery',
 
 "for phpunit
 augroup QuickRunPHPUnit
@@ -493,30 +396,20 @@ function! phpunit_outputter.init(session)
 	call call(quickrun#outputter#buffer#new().init, [a:session], self)
 endfunction
 
-" set color 
-highlight PhpUnitOK         ctermbg=Green ctermfg=White guifg=White guibg=Green
-highlight PhpUnitFail       ctermbg=Red   ctermfg=White guifg=White guibg=Red
-highlight PhpUnitAssertFail ctermfg=Red
-
 function! phpunit_outputter.finish(session)
-	call matchadd("PhpUnitOK","^OK.*$")
-	call matchadd("PhpUnitFail","^FAILURES.*$")
-	call matchadd("PhpUnitAssertFail","^Failed.*$")
-	call call(quickrun#outputter#buffer#new().finish, [a:session], self)
+    " set color 
+    highlight default PhpUnitOK         ctermbg=Green ctermfg=White
+    highlight default PhpUnitFail       ctermbg=Red   ctermfg=White
+    highlight default PhpUnitAssertFail ctermfg=Red
+    call matchadd("PhpUnitFail","^FAILURES.*$")
+    call matchadd("PhpUnitOK","^OK.*$")
+    call matchadd("PhpUnitAssertFail","^Failed.*$")
+    call call(quickrun#outputter#buffer#new().finish, [a:session], self)
 endfunction
 
 " regist outputter to quickrun
 call quickrun#register_outputter("phpunit_outputter", phpunit_outputter)
 
-"let g:quickrun_config['_'] = {}
-"let g:quickrun_config['_']['runner'] = 'vimproc'
-"let g:quickrun_config['_']['runner/vimproc/updatetime'] = 100
-
-"For PHP Unit
-let g:quickrun_config['php.unit'] = {
-			\ 'command': 'phpunit',
-			\ 'outputter': 'phpunit_outputter',
-			\ }
 
 "For ruby
 let g:quickrun_config['ruby'] = {
@@ -615,4 +508,6 @@ let g:ctrlp_open_new_file       = 1   " 新規ファイル作成時にタブで�
 "for powerline
 let g:Powerline_symbols='fancy'
 
+" for weather.vim
+let g:weather_city_name = '東京'
 
