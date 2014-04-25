@@ -37,20 +37,15 @@ setopt auto_cd
 #
 setopt auto_pushd
 
-#set vim alias
-alias vim=/opt/local/bin/vim
-
 #set svn editor
 export SVN_EDITOR=vim
 export GIT_EDITORA=vim
 
 #alias
-alias ls='gls -v --color=auto'
+#alias ls='ls -v --color=auto'
 
-PATH=$HOME/bin:/opt/local/bin:/opt/local/sbin:/opt/local/lib/php/pear/bin:/usr/local/bin:/usr/local:$PATH
-export MANPATH=/opt/local/share/man:$MANPATH  #for macports
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"  # This loads RVM
+PATH=$HOME/bin:/usr/local/bin:/usr/local:/usr/local/sbin:$PATH
+#export MANPATH=/opt/local/share/man:$MANPATH  #for macports
 
 # for tmux
 if [ -z "$TMUX" -a -z "$STY" ]; then
@@ -98,4 +93,8 @@ alias ssh='TERM=xterm ssh'
 
 
 ### Added by the Heroku Toolbelt
-export PATH="/usr/local/heroku/bin:$PATH"
+export PATH="/usr/local/bin:/usr/local/heroku/bin:$PATH"
+
+fpath=($HOME/zshscript/cd-bookmark(N-/) $fpath)
+autoload -Uz cd-bookmark
+alias cdb='cd-bookmark'

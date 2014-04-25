@@ -1,7 +1,7 @@
 ""
 " For Mac Version _vimrc
 " Since 2011.12.13
-" Last version 2013.03.11
+" Last version 2013.09.17
 
 set enc=utf-8
 set fenc=utf-8
@@ -35,6 +35,13 @@ set backspace=indent,eol,start
 set wildmenu
 set wildmode=list:full
 
+"検索ループ
+set wrapscan
+
+"タブはスペースに
+set expandtab
+"set tab:>\ 
+
 "for NeoBundler
 
 set nocompatible               " be iMproved
@@ -47,7 +54,7 @@ endif
 
 NeoBundle 'vim-scripts/project.tar.gz'
 NeoBundle 'Shougo/neocomplcache'
-NeoBundle 'Shougo/neosnippet'
+"NeoBundle 'Shougo/neosnippet'
 NeoBundle 'Shougo/vimshell'
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/git-vim'
@@ -56,15 +63,19 @@ NeoBundle 'Shougo/vimfiler'
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'thinca/vim-quickrun'
 NeoBundle 'thinca/vim-ref'
-NeoBundle 'mattn/zencoding-vim'
+NeoBundle 'mattn/emmet-vim'
 NeoBundle 'mattn/favstar-vim'
 NeoBundle 'mattn/webapi-vim'
+NeoBundle 'mattn/qiita-vim'
+NeoBundle 'mattn/emoji-vim'
+NeoBundle 'mattn/lgtm-vim'
 NeoBundle 'kana/vim-smartchr'
 NeoBundle 'koron/chalice'
 NeoBundle 'Better-Javascript-Indentation'
 NeoBundle 'pangloss/vim-javascript'
+NeoBundle 'itchyny/lightline.vim'
 "NeoBundle 'taichouchou2/alpaca_powertabline'
-NeoBundle 'Lokaltog/powerline', { 'rtp' : 'powerline/bindings/vim'}
+"NeoBundle 'Lokaltog/powerline', { 'rtp' : 'powerline/bindings/vim'}
 NeoBundle 'vim-scripts/sudo.vim'
 NeoBundle 'vim-scripts/vcscommand.vim'
 NeoBundle 'vim-scripts/wombat256.vim'
@@ -79,13 +90,23 @@ NeoBundle 'yuratomo/gmail.vim'
 NeoBundle 'hallison/vim-markdown'
 NeoBundle 'zeis/vim-kolor'
 NeoBundle 'matchit.zip'
-NeoBundle 'ruby-matchit'
+"NeoBundle 'ruby-matchit'
 NeoBundle 'kien/ctrlp.vim'
 NeoBundle 'sjl/gundo.vim'
 NeoBundle 'ArcCosine/weather.vim'
+NeoBundle 'mopp/googlesuggest-source.vim'
+NeoBundle 'mattn/googlesuggest-complete-vim'
+NeoBundle 'osyo-manga/vim-over'
+NeoBundle 'LeafCage/yankround.vim'
+"NeoBundle 'syui/wauto.vim'
+NeoBundle 'szw/vim-tags'
+NeoBundle 'kmnk/vim-unite-svn'
+NeoBundle 'kchmck/vim-coffee-script'
 
 filetype plugin indent on     " required!
 
+"Auto save enable.
+"let g:auto_write = 1
 
 "For vimfiler
 let g:vimfiler_as_default_explorer=1
@@ -115,11 +136,12 @@ nnoremap <SID>[ug] <Nop>
 nmap ,u <SID>[ug]
 
 nnoremap <silent> <SID>[ug]b :<C-u>Unite buffer<CR>
+nnoremap <silent> <SID>[ug]o :<C-u>Unite bookmark -default-action=open<CR>
 nnoremap <silent> <SID>[ug]f :<C-u>UniteWithBufferDir -buffer-name=files file file/new<CR>
 nnoremap <silent> <SID>[ug]r :<C-u>Unite -buffer-name=register register<CR>
-nnoremap <silent> <SID>[ug]m :<C-u>Unite file_mru -default-action=tabopen<CR>
-nnoremap <silent> <SID>[ug]u :<C-u>Unite buffer file_mru file -default-action=tabopen<CR>
-nnoremap <silent> <SID>[ug]a :<C-u>UniteWithBufferDir -buffer-name=files buffer file_mru bookmark file -default-action=tabopen<CR>
+nnoremap <silent> <SID>[ug]m :<C-u>Unite file_mru -default-action=tabdrop<CR>
+nnoremap <silent> <SID>[ug]u :<C-u>Unite buffer file_mru file -default-action=tabdrop<CR>
+nnoremap <silent> <SID>[ug]a :<C-u>UniteWithBufferDir -buffer-name=files buffer file_mru bookmark file -default-action=tabdrop<CR>
 nnoremap <silent> <SID>[ug]l :<C-u>Unite vcs/log<CR>
 nnoremap <silent> <SID>[ug]c :<C-u>Unite vcs/commit<CR>
 nnoremap <silent> <SID>[ug]t :<C-u>Unite tweetvim<CR>
@@ -133,22 +155,28 @@ au FileType unite nnoremap <silent> <buffer> <expr> <C-j> unite#do_action('split
 au FileType unite inoremap <silent> <buffer> <expr> <C-j> unite#do_action('split')
 au FileType unite nnoremap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
 au FileType unite inoremap <silent> <buffer> <expr> <C-l> unite#do_action('vsplit')
-au FileType unite nnoremap <silent> <buffer> <expr> <C-t> unite#do_action('tabopen')
-au FileType unite inoremap <silent> <buffer> <expr> <C-t> unite#do_action('tabopen')
+au FileType unite nnoremap <silent> <buffer> <expr> <C-o> unite#do_action('tabopen')
+au FileType unite inoremap <silent> <buffer> <expr> <C-o> unite#do_action('tabopen')
 
+"for candidate
+call unite#custom_max_candidates("file_mru", 1000)
 
 "for buffer
 au BufNewFile,BufRead * set tabstop=4 shiftwidth=4
 au BufNewFile,BufRead *.rhtml set tabstop=2 shiftwidth=2
 au BufNewFile,BufRead *.rb set tabstop=2 shiftwidth=2
 au BufNewFile,BufRead *.yml set tabstop=2 shiftwidth=2
-au BufNewFile,BufRead *.js set tabstop=2 shiftwidth=2 ft=javascript fenc=utf-8
-au BufNewFile,BufRead *.css set tabstop=2 shiftwidth=2
-au BufNewFile,BufRead *.html set tabstop=2 shiftwidth=2
-au BufNewFile,BufRead *.php set tabstop=2 shiftwidth=2
+au BufNewFile,BufRead *.js set tabstop=4 shiftwidth=4 ft=javascript fenc=utf-8
+au BufNewFile,BufRead *.css set tabstop=4 shiftwidth=2
+au BufNewFile,BufRead *.html set tabstop=4 shiftwidth=2
+au BufNewFile,BufRead *.php set tabstop=4 shiftwidth=2
+au BufNewFile,BufRead *.php set tags+=$HOME/php.tags  
+
+" vim-tags
+au BufNewFile,BufRead *.php let g:vim_tags_project_tags_command = "ctags --languages=php -f ~/php.tags  2>/dev/null &"
 
 "for javascript
-autocmd FileType javascript set tabstop=2 expandtab shiftwidth=2
+"autocmd FileType javascript set tabstop=2 shiftwidth=2
 
 " for python
 autocmd FileType python setl autoindent
@@ -158,7 +186,11 @@ autocmd FileType python setl tabstop=8 expandtab shiftwidth=4 softtabstop=4
 "for text
 autocmd FileType text set formatoptions=q
 
-" replce
+" for coffee script
+au BufRead,BufNewFile,BufReadPre *.coffee   set filetype=coffee
+autocmd FileType coffee     setlocal sw=2 sts=2 ts=2 et
+
+" replace
 nnoremap <silent> cy ce<C-r>0<Esc>:let@/=@1<CR>:noh<CR>
 vnoremap <silent> cy c<C-r>0<Esc>:let@/=@1<CR>:noh<CR>
 nnoremap <silent> ciy ciw<C-r>0<Esc>:let@/=@1<CR>:noh<CR>
@@ -179,6 +211,27 @@ nnoremap <C-k> :<C-u>tabp<CR>
 
 " For vimtweet
 "let g:tweetvim_display_icon=1
+
+" tagsジャンプの時に複数ある時は一覧表示                                        
+nnoremap <C-]> g<C-]> 
+
+"For vim over
+nnoremap <silent> <Leader>s :OverCommandLine<CR>
+" カーソル下の単語をハイライト付きで置換
+nnoremap sub :OverCommandLine<CR>%s/<C-r><C-w>//g<Left><Left>
+" コピーした文字列をハイライト付きで置換
+nnoremap subp y:OverCommandLine<CR>%s!<C-r>=substitute(@0, '!', '\\!', 'g')<CR>!!gI<Left><Left><Left>
+
+" yankround.vim 
+"" キーマップ
+nmap p <Plug>(yankround-p)
+nmap P <Plug>(yankround-P)
+nmap <C-p> <Plug>(yankround-prev)
+nmap <C-n> <Plug>(yankround-next)
+"" 履歴取得数
+let g:yankround_max_history = 50
+""履歴一覧(kien/ctrlp.vim)
+nnoremap <silent>g<C-p> :<C-u>CtrlPYankRound<CR>
 
 
 function! RTrim()
@@ -236,9 +289,9 @@ vnoremap <Leader>C <Esc>:call CommentMark(0,'<','>')<CR>
 
 
 " For neosnippet
-imap <C-k>     <Plug>(neosnippet_expand_or_jump)
-smap <C-k>     <Plug>(neosnippet_expand_or_jump)
-set completeopt-=preview
+"imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+"smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+"set completeopt-=preview
 
 "For open browser
 nmap <Leader>o <Plug>(openbrowser-open)
@@ -282,14 +335,17 @@ endfunction
 "for make
 set makeprg=ant
 nnoremap <silent> <C-l>2 :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin2\|echo 'done'<CR>
-nnoremap <silent> <C-l>3 :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin3\|echo 'done'<CR>
 nnoremap <silent> <C-l>l :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin_ad\|echo 'done'<CR>
-nnoremap <silent> <C-l>r :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin_retarget\|echo 'done'<CR>
+"nnoremap <silent> <C-l>r :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin_retarget\|echo 'done'<CR>
 nnoremap <silent> <C-l>k :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin_kauli_lastview\|echo 'done'<CR>
-nnoremap <silent> <C-l>d :<C-u>silent make -f ~/Sites/src/build3/build.xml test_discovery\|echo 'discovery done'<CR>
 nnoremap <silent> <C-l>c :<C-u>silent make -f ~/Sites/custom/build/build.xml test_custom\|echo 'done'<CR>
+nnoremap <silent> <C-l>d :<C-u>silent make -f ~/Sites/custom/build/build.xml test_discovery\|echo 'discovery done'<CR>
 nnoremap <silent> <C-l>m :<C-u>silent make -f ~/Sites/custom/build/build.xml test_mobile_plugin\|echo 'done'<CR>
 nnoremap <silent> <C-l>s :<C-u>silent make -f ~/Sites/custom/build/build.xml test_media_search\|echo 'done'<CR>
+nnoremap <silent> <C-l>a :<C-u>silent make -f ~/Sites/custom/build/build.xml test_action\|echo 'done'<CR>
+nnoremap <silent> <C-l>r :<C-u>silent make -f ~/Sites/custom/build/build.xml test_read\|echo 'done'<CR>
+nnoremap <silent> <C-l>3 :<C-u>silent make -f ~/Sites/custom/build/build.xml test_recommend\|echo 'done'<CR>
+nnoremap <silent> <C-l>f :<C-u>silent make -f ~/Sites/custom/build/build.xml test_favorite\|echo 'done'<CR>
 
 
 vnoremap <Leader>e "xx:call <SID>EscapeXml()<CR>"xP
@@ -371,44 +427,45 @@ let g:quickrun_config = {
 \       'cmdopt' : '-f ~/Sites/custom/build/build.xml test_suggestion',
 \		'exec' : '%c %o'
 \	},
-\   'php.unit' : {
-\		'runner' : 'vimproc',
-\		'runner/vimproc/updatetime' : '100',
-\       'command' : 'phpunit',
-\       'outputter' : 'phpunit_outputter',
-\   }
 \}
+"\   'php.unit' : {
+"\		'runner' : 'vimproc',
+"\		'runner/vimproc/updatetime' : '100',
+"\       'command' : 'phpunit',
+"\       'outputter' : 'phpunit_outputter',
+"\   }
+"\}
 
 
 "\       'cmdopt' : '-f ~/Sites/custom/build/build.xml test_discovery',
 
 "for phpunit
-augroup QuickRunPHPUnit
-    autocmd!
-    autocmd BufWinEnter,BufNewFile *test.php set filetype=php.unit
-augroup END
+"augroup QuickRunPHPUnit
+    "autocmd!
+    "autocmd BufWinEnter,BufNewFile *test.php set filetype=php.unit
+"augroup END
 
 
 " make outputter for coloring output message.
-let phpunit_outputter = quickrun#outputter#buffer#new()
-function! phpunit_outputter.init(session)
-	" call original process
-	call call(quickrun#outputter#buffer#new().init, [a:session], self)
-endfunction
-
-function! phpunit_outputter.finish(session)
-    " set color 
-    highlight default PhpUnitOK         ctermbg=Green ctermfg=White
-    highlight default PhpUnitFail       ctermbg=Red   ctermfg=White
-    highlight default PhpUnitAssertFail ctermfg=Red
-    call matchadd("PhpUnitFail","^FAILURES.*$")
-    call matchadd("PhpUnitOK","^OK.*$")
-    call matchadd("PhpUnitAssertFail","^Failed.*$")
-    call call(quickrun#outputter#buffer#new().finish, [a:session], self)
-endfunction
-
-" regist outputter to quickrun
-call quickrun#register_outputter("phpunit_outputter", phpunit_outputter)
+"let phpunit_outputter = quickrun#outputter#buffer#new()
+"function! phpunit_outputter.init(session)
+"	" call original process
+"	call call(quickrun#outputter#buffer#new().init, [a:session], self)
+"endfunction
+"
+"function! phpunit_outputter.finish(session)
+"    " set color 
+"    highlight default PhpUnitOK         ctermbg=Green ctermfg=White
+"    highlight default PhpUnitFail       ctermbg=Red   ctermfg=White
+"    highlight default PhpUnitAssertFail ctermfg=Red
+"    call matchadd("PhpUnitFail","^FAILURES.*$")
+"    call matchadd("PhpUnitOK","^OK.*$")
+"    call matchadd("PhpUnitAssertFail","^Failed.*$")
+"    call call(quickrun#outputter#buffer#new().finish, [a:session], self)
+"endfunction
+"
+"" regist outputter to quickrun
+"call quickrun#register_outputter("phpunit_outputter", phpunit_outputter)
 
 
 "For ruby
@@ -494,7 +551,12 @@ command! -bar -bang -nargs=? -complete=file Scouter
 let g:gmail_user_name = 'm.ksdcom@gmail.com'
 
 "for markdown
-nnoremap \m :!pandoc -f markdown -t html -o /tmp/__markdown.html "%"; open /tmp/__markdown.html<CR><CR>
+nnoremap \m :call DisplayMarkdown()<CR>
+function! DisplayMarkdown()
+    !perl ~/Markdown/Markdown.pl --html4tags "%" > /tmp/__markdown.html;
+    vert split /tmp/__markdown.html
+    call cursor(1,1)
+endfunction
 
 "for vim-ref
 let g:ref_phpmanual_path = '/Users/sou/manual/php/php-chunked-xhtml'
@@ -506,8 +568,143 @@ let g:ctrlp_mruf_max            = 500 " MRUの最大記録数
 let g:ctrlp_open_new_file       = 1   " 新規ファイル作成時にタブで開く
 
 "for powerline
-let g:Powerline_symbols='fancy'
+"let g:Powerline_symbols='fancy'
+
+" lightline.vim
+let g:lightline = {
+        \ 'colorscheme': 'landscape',
+        \ 'mode_map': {'c': 'NORMAL'},
+        \ 'active': {
+        \   'left': [
+        \     ['mode', 'paste'],
+        \     ['fugitive', 'gitgutter', 'filename'],
+        \   ],
+        \   'right': [
+        \     ['lineinfo', 'syntastic'],
+        \     ['percent'],
+        \     ['charcode', 'fileformat', 'fileencoding', 'filetype'],
+        \   ]
+        \ },
+        \ 'component_function': {
+        \   'modified': 'MyModified',
+        \   'readonly': 'MyReadonly',
+        \   'fugitive': 'MyFugitive',
+        \   'filename': 'MyFilename',
+        \   'fileformat': 'MyFileformat',
+        \   'filetype': 'MyFiletype',
+        \   'fileencoding': 'MyFileencoding',
+        \   'mode': 'MyMode',
+        \   'syntastic': 'SyntasticStatuslineFlag',
+        \   'charcode': 'MyCharCode',
+        \   'gitgutter': 'MyGitGutter',
+        \ },
+        \ 'separator': {'left': '⮀', 'right': '⮂'},
+        \ 'subseparator': {'left': '⮁', 'right': '⮃'}
+        \ }
+
+function! MyModified()
+  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! MyReadonly()
+  return &ft !~? 'help\|vimfiler\|gundo' && &ro ? '⭤' : ''
+endfunction
+
+function! MyFilename()
+  return ('' != MyReadonly() ? MyReadonly() . ' ' : '') .
+        \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
+        \  &ft == 'unite' ? unite#get_status_string() :
+        \  &ft == 'vimshell' ? substitute(b:vimshell.current_dir,expand('~'),'~','') :
+        \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
+        \ ('' != MyModified() ? ' ' . MyModified() : '')
+endfunction
+
+function! MyFugitive()
+  try
+    if &ft !~? 'vimfiler\|gundo' && exists('*fugitive#head')
+      let _ = fugitive#head()
+      return strlen(_) ? '⭠ '._ : ''
+    endif
+  catch
+  endtry
+  return ''
+endfunction
+
+function! MyFileformat()
+  return winwidth('.') > 70 ? &fileformat : ''
+endfunction
+
+function! MyFiletype()
+  return winwidth('.') > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
+endfunction
+
+function! MyFileencoding()
+  return winwidth('.') > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
+endfunction
+
+function! MyMode()
+  return winwidth('.') > 60 ? lightline#mode() : ''
+endfunction
+
+function! MyGitGutter()
+  if ! exists('*GitGutterGetHunkSummary')
+        \ || ! get(g:, 'gitgutter_enabled', 0)
+        \ || winwidth('.') <= 90
+    return ''
+  endif
+  let symbols = [
+        \ g:gitgutter_sign_added . ' ',
+        \ g:gitgutter_sign_modified . ' ',
+        \ g:gitgutter_sign_removed . ' '
+        \ ]
+  let hunks = GitGutterGetHunkSummary()
+  let ret = []
+  for i in [0, 1, 2]
+    if hunks[i] > 0
+      call add(ret, symbols[i] . hunks[i])
+    endif
+  endfor
+  return join(ret, ' ')
+endfunction
+
+" https://github.com/Lokaltog/vim-powerline/blob/develop/autoload/Powerline/Functions.vim
+function! MyCharCode()
+  if winwidth('.') <= 70
+    return ''
+  endif
+
+  " Get the output of :ascii
+  redir => ascii
+  silent! ascii
+  redir END
+
+  if match(ascii, 'NUL') != -1
+    return 'NUL'
+  endif
+
+  " Zero pad hex values
+  let nrformat = '0x%02x'
+
+  let encoding = (&fenc == '' ? &enc : &fenc)
+
+  if encoding == 'utf-8'
+    " Zero pad with 4 zeroes in unicode files
+    let nrformat = '0x%04x'
+  endif
+
+  " Get the character and the numeric value from the return value of :ascii
+  " This matches the two first pieces of the return value, e.g.
+  " "<F>  70" => char: 'F', nr: '70'
+  let [str, char, nr; rest] = matchlist(ascii, '\v\<(.{-1,})\>\s*([0-9]+)')
+
+  " Format the numeric value
+  let nr = printf(nrformat, nr)
+
+  return "'". char ."' ". nr
+endfunction
 
 " for weather.vim
 let g:weather_city_name = '東京'
 
+" for ime off
+inoremap <silent> <ESC> <ESC>:set iminsert=0<CR>
