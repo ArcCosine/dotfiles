@@ -1,6 +1,6 @@
 # dotfiles
 
-[![Generic badge](https://img.shields.io/badge/version-dev-green.svg)](https://shields.io/))
+[![Generic badge](https://img.shields.io/badge/vim-dotfiles-green.svg)](https://shields.io/)
 
 -   .vimrc
 
