@@ -1,7 +1,14 @@
 ""
 " For Windows and Mac Version _vimrc
 " Since 2011.12.13
-" Last version 2020.05.14
+" Last version 2021.12.08
+
+"for python3 path
+if has('win32')
+    let g:python3_host_prog = fnameescape('C:/Users/AC/AppData/Local/Programs/Python/Python310/python.exe') 
+else 
+    let g:python3_host_prog = fnameescape('/C/Users/AC/AppData/Local/Programs/Python/Python310/python.exe') 
+endif
 
 "for vimproc
 let g:vimproc#download_windows_dll = 1
@@ -47,6 +54,9 @@ set wrapscan
 "タブはスペースに
 set expandtab
 
+
+
+
 "dein Scripts-----------------------------
 if &compatible
   set nocompatible               " Be iMproved
@@ -72,11 +82,9 @@ if dein#load_state(s:dein_dir)
   " プラグインリストを収めた TOML ファイル
   let s:toml_dir  = $HOME . '/.config/vim' 
   let s:toml      = s:toml_dir . '/dein.toml'
-  let s:lazy_toml = s:toml_dir . '/dein_lazy.toml'
 
   " TOML を読み込み、キャッシュしておく
   call dein#load_toml(s:toml,      {'lazy': 0})
-  call dein#load_toml(s:lazy_toml, {'lazy': 1})
 
   call dein#end()
   call dein#save_state()
@@ -87,8 +95,10 @@ syntax enable
 
 " dein end.
 
-"For vimfiler
-"let g:vimfiler_as_default_explorer=1
+
+" API TOKEN
+" See:https://thinca.hatenablog.com/entry/dein-vim-with-graphql-api
+let g:dein#install_github_api_token = 'Your_API_KEY'
 
 
 "For ZenCoding
@@ -106,8 +116,8 @@ let g:neocomplcache_enable_at_startup=1
 "" reloadable vimrc
 nnoremap <silent> ,r :<C-u>source $MYVIMRC \| if has('gui_running') \| source $MYGVIMRC \| endif<CR>
 
-"" for unite
-" set unite keymaping
+"" for denite 
+" set denite keymaping
 nnoremap <SID>[ug] <Nop>
 nmap ,u <SID>[ug]
 
@@ -137,6 +147,46 @@ function! s:denite_my_settings() abort
   \ denite#do_map('toggle_select').'j'
 endfunction
 
+call denite#custom#var('grep', {
+            \ 'command': ['pt'],
+            \ 'default_opts': [
+            \   '-i', '--nogroup', '--nocolor', '--smart-case'],
+            \ 'recursive_opts': [],
+            \ 'pattern_opt': [],
+            \ 'separator': ['--'],
+            \ 'final_opts': [],
+            \ })
+
+
+" For vsnip
+" NOTE: You can use other key to expand snippet.
+
+" Expand
+imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+
+" Expand or jump
+imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+
+" Jump forward or backward
+imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+
+" Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+" See https://github.com/hrsh7th/vim-vsnip/pull/50
+nmap        s   <Plug>(vsnip-select-text)
+xmap        s   <Plug>(vsnip-select-text)
+nmap        S   <Plug>(vsnip-cut-text)
+xmap        S   <Plug>(vsnip-cut-text)
+
+" If you want to use snippet for multiple filetypes, you can `g:vsip_filetypes` for it.
+let g:vsnip_filetypes = {}
+let g:vsnip_filetypes.javascriptreact = ['javascript']
+let g:vsnip_filetypes.typescriptreact = ['typescript']
+
 "for buffer
 au BufNewFile,BufRead * set tabstop=4 shiftwidth=4
 au BufNewFile,BufRead *.rhtml set tabstop=2 shiftwidth=2
@@ -146,7 +196,6 @@ au BufNewFile,BufRead *.js set tabstop=4 shiftwidth=4 ft=javascript fenc=utf-8
 au BufNewFile,BufRead *.css set tabstop=4 shiftwidth=2
 au BufNewFile,BufRead *.html set tabstop=4 shiftwidth=2
 au BufNewFile,BufRead *.php set tabstop=4 shiftwidth=2
-au BufNewFile,BufRead *.php set tags+=$HOME/php.tags  
 
 " for python
 autocmd FileType python setl autoindent
@@ -159,6 +208,9 @@ autocmd FileType text set formatoptions=q
 " for markdown
 au BufRead,BufNewFile *.md set filetype=markdown
 let g:vim_markdown_folding_disabled=1
+
+" for asciidoc
+au BufNewFile,BufRead *.{asciidoc,adoc,asc} set filetype=asciidoc
 
 " replace
 nnoremap <silent> cy ce<C-r>0<Esc>:let@/=@1<CR>:noh<CR>
@@ -176,8 +228,8 @@ nnoremap q/ <Nop>
 nnoremap q? <Nop> 
 
 " Tab change
-nnoremap <C-j> :<C-u>tabn<CR>
-nnoremap <C-k> :<C-u>tabp<CR>
+" nnoremap <C-j> :<C-u>tabn<CR>
+" nnoremap <C-k> :<C-u>tabp<CR>
 
 "For vim over
 nnoremap <silent> <Leader>s :OverCommandLine<CR>
@@ -218,38 +270,12 @@ endfunction
 " Change current directory.
 nnoremap <silent> <Space>cd :<C-u>CD<CR>
 
-"for make
-" set makeprg=ant
-" nnoremap <silent> <C-l>2 :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin2\|echo 'done'<CR>
-" nnoremap <silent> <C-l>l :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin_ad\|echo 'done'<CR>
-" "nnoremap <silent> <C-l>r :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin_retarget\|echo 'done'<CR>
-" nnoremap <silent> <C-l>k :<C-u>silent make -f ~/Sites/src/build3/build.xml test_popin_kauli_lastview\|echo 'done'<CR>
-" nnoremap <silent> <C-l>c :<C-u>silent make -f ~/Sites/custom/build/build.xml test_custom\|echo 'done'<CR>
-" nnoremap <silent> <C-l>d :<C-u>silent make -f ~/Sites/custom/build/build.xml test_discovery\|echo 'discovery done'<CR>
-" nnoremap <silent> <C-l>m :<C-u>silent make -f ~/Sites/custom/build/build.xml test_mobile_plugin\|echo 'done'<CR>
-" nnoremap <silent> <C-l>s :<C-u>silent make -f ~/Sites/custom/build/build.xml test_media_search\|echo 'done'<CR>
-" nnoremap <silent> <C-l>a :<C-u>silent make -f ~/Sites/custom/build/build.xml test_action\|echo 'done'<CR>
-" nnoremap <silent> <C-l>r :<C-u>silent make -f ~/Sites/custom/build/build.xml test_read\|echo 'done'<CR>
-" nnoremap <silent> <C-l>3 :<C-u>silent make -f ~/Sites/custom/build/build.xml test_recommend\|echo 'done'<CR>
-
-
-" 時間挿入
-function! GetCurrentTime()
-  return strftime("Update at %H:%M:%S", localtime())
-endfunction
-"noremap <C-t>n a<C-R>=GetCurrentTime()<CR><Esc>
-
 "for design
-set t_Co=256
-colorscheme desert
-"set background=dark
-"colorscheme yuroyoro256
-"colorscheme wombat256mod
-"if g:colors_name ==? 'wombat'
-hi Visual gui=none guifg=khaki guibg=olivedrab
+"if !has('gui_running')
+"  set t_Co=256
 "endif
-"colorscheme	kolor
-"colorscheme	solarized
+colorscheme desert
+hi Visual gui=none guifg=khaki guibg=olivedrab
 
 
 "コマンド実行中は再描画しない
@@ -266,14 +292,6 @@ let g:quickrun_config = {
 \		'command' : 'ruby',
 \		'runner' : 'vimproc',
 \		'exec' : '%c %s'
-\	},
-\	'javascript' : {
-\		'command' : 'ant',
-\		'runner' : 'vimproc',
-\       'hook/cd/enable' : 1,
-\       'hook/cd/directory' : '~/Sites/custom/build',
-\       'cmdopt' : '-f ~/Sites/custom/build/build.xml test_suggestion',
-\		'exec' : '%c %o'
 \	},
 \}
 
@@ -362,11 +380,22 @@ command! -bar -bang -nargs=? -complete=file Scouter
 "for markdown
 nnoremap \m :call DisplayMarkdown()<CR>
 function! DisplayMarkdown()
-    !node "C:\tools\markdown-maker\markdown-maker.js" "%" > "C:\tmp\__markdown.html";
+    !node "C:\tools\markdown-maker\markdown-maker.js" "%" > "C:\tmp\__markdown.html"
     vert split C:/tmp/__markdown.html
     call cursor(1,1)
+    % yank
+    bdelete 
 endfunction
 
+"for asciidoc
+nnoremap \a :call DisplayAsciiDoc()<CR>
+function! DisplayAsciiDoc()
+    !node "C:\tools\asciidoc-maker\index.js" "%" > "C:\tmp\__asciidoc.html"
+    vert split C:/tmp/__asciidoc.html
+    call cursor(1,1)
+    % yank
+    bdelete 
+endfunction
 
 
 " for defx
@@ -435,41 +464,43 @@ nnoremap <silent><buffer><expr> <CR>
 	  \ defx#do_action('print')
 	  nnoremap <silent><buffer><expr> cd
 	  \ defx#do_action('change_vim_cwd')
- 	endfunction" lightline.vim
+ 	endfunction
+
+" lightline.vim
 let g:lightline = {
-        \ 'colorscheme': 'wombat',
-        \ 'mode_map': {'c': 'NORMAL'},
-        \ 'active': {
-        \   'left': [
-        \     ['mode', 'paste'],
-        \     ['fugitive', 'gitgutter', 'filename'],
-        \     ['ale']
-        \   ],
-        \   'right': [
-        \     ['lineinfo', 'syntastic'],
-        \     ['percent'],
-        \     ['charcode', 'fileformat', 'fileencoding', 'filetype'],
-        \     ['linter_checking', 'linter_errors', 'linter_warnings', 'linter_ok'],
-        \   ]
-        \ },
-        \ 'component_function': {
-        \   'modified': 'MyModified',
-        \   'readonly': 'MyReadonly',
-        \   'fugitive': 'MyFugitive',
-        \   'filename': 'MyFilename',
-        \   'fileformat': 'MyFileformat',
-        \   'filetype': 'MyFiletype',
-        \   'fileencoding': 'MyFileencoding',
-        \   'mode': 'MyMode',
-        \   'syntastic': 'SyntasticStatuslineFlag',
-        \   'charcode': 'MyCharCode',
-        \   'gitgutter': 'MyGitGutter',
-        \   'ale': 'ALEGetStatusLine',
-        \   'lsp': 'LSPStatus',
-        \ },
-		\ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
-		\ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" }        
-        \ }
+    \ 'colorscheme': 'wombat',
+    \ 'active': {
+    \   'left': [
+    \     ['mode', 'paste'],
+    \     ['filename'],
+    \     ['ale']
+    \   ],
+    \   'right': [
+    \     ['lineinfo', 'syntastic'],
+    \     ['percent','denite'],
+    \     ['charcode', 'fileformat', 'fileencoding', 'filetype'],
+    \     ['linter_checking', 'linter_errors', 'linter_warnings', 'linter_ok'],
+    \   ]
+    \ },
+    \ 'component_function': {
+    \   'modified': 'MyModified',
+    \   'readonly': 'MyReadonly',
+    \   'fugitive': 'MyFugitive',
+    \   'filename': 'MyFilename',
+    \   'fileformat': 'MyFileformat',
+    \   'filetype': 'MyFiletype',
+    \   'fileencoding': 'MyFileencoding',
+    \   'denite': 'MyDenite',
+    \   'mode': 'MyMode',
+    \   'syntastic': 'SyntasticStatuslineFlag',
+    \   'charcode': 'MyCharCode',
+    \   'gitgutter': 'MyGitGutter',
+    \   'ale': 'ALEGetStatusLine',
+    \   'lsp': 'LSPStatus',
+    \ },
+    \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
+    \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" }   
+    \ }
 
 let g:lightline.component_expand = {
       \  'linter_checking': 'lightline#ale#checking',
@@ -482,30 +513,29 @@ let g:lightline.component_type = {
       \     'linter_checking': 'left',
       \     'linter_warnings': 'warning',
       \     'linter_errors': 'error',
-      \     'linter_ok': 'left'
+      \     'linter_ok': 'left'      
       \ }
 
+" let g:lightline.active = { 'right': [[ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_infos', 'linter_ok' ]] }
+
 function! MyModified()
-  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+  return &ft =~ 'help\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
 endfunction
 
 function! MyReadonly()
-  return &ft !~? 'help\|vimfiler\|gundo' && &ro ? '?' : ''
+  return &ft !~? 'help\|gundo' && &ro ? '?' : ''
 endfunction
 
 function! MyFilename()
     return ('' != MyReadonly() ? MyReadonly() . ' ' : '') .
-                \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
-                \  &ft == 'unite' ? unite#get_status_string() :
-                \  &ft == 'vimshell' ? substitute(b:vimshell.current_dir,expand('~'),'~','') :
-                \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
+                \ ('' != expand('%:t') ? expand('%:t') : '[No Name]') .
                 \ ('' != MyModified() ? ' ' . MyModified() : '')
 endfunction
 
 
 function! MyFugitive()
   try
-    if &ft !~? 'vimfiler\|gundo' && exists('*fugitive#head')
+    if &ft !~? 'gundo' && exists('*fugitive#head')
       let _ = fugitive#head()
       return strlen(_) ? '? '._ : ''
     endif
@@ -586,18 +616,45 @@ function! MyCharCode()
   return "'". char ."' ". nr
 endfunction
 
- function! LSPStatus() abort
-        let l:errors = 0
-        let l:warnings = 0
-        for item in getqflist()
-            if item["type"] == "E"
-                let l:errors += 1
-            else
-                let l:warnings += 1
-            endif
-        endfor
-        return l:errors + l:warnings == 0 ? "LSP: OK" : "LSP: E:" . l:errors . " " . "W:" . l:warnings
-    endfunction
+function! LSPStatus() abort
+    let l:errors = 0
+    let l:warnings = 0
+    for item in getqflist()
+        if item["type"] == "E"
+            let l:errors += 1
+        else
+            let l:warnings += 1
+        endif
+    endfor
+    return l:errors + l:warnings == 0 ? "LSP: OK" : "LSP: E:" . l:errors . " " . "W:" . l:warnings
+endfunction
+
+function! MyDenite() abort
+     if &filetype isnot# 'denite'
+         return ''
+     else
+         return s:denite_statusline()
+     endif
+ endfunction
+
+
+ function! s:denite_statusline() abort
+     let p =denite#get_status('path')
+     " 飾りをはずす
+     let p = substitute(p, '\(\[\|\]\)', '', 'g')
+     " パスをホームディレクトリからの相対パスに変換する
+     let p = fnamemodify(p,':~')
+     " パスが長い時は強引に切り詰める
+     if strlen(p) > 40
+         let p = '.../' . fnamemodify(p,':h:h:t'). '/'
+                     \ . fnamemodify(p,':h:t'). '/'. fnamemodify(p, ':t')
+     endif
+     let path =  '[' . p . ']'
+     let buf = 'buffer:' . denite#get_status('buffer_name')
+     let source = denite#get_status('sources')
+     return  buf . ' ' . source . ' ' . path
+ endfunction
+    
 
 " for weather.vim
 let g:weather_city_name = '東京'
@@ -618,6 +675,7 @@ let g:ale_linters = {
 \   'javascript': ['eslint'],
 \   'markdown' : ['textlint']
 \}
+
 let g:ale_statusline_format = ['E %d', 'W %d', '◆ok']
 
 
