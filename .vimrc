@@ -1,14 +1,7 @@
 ""
 " For Windows and Mac Version _vimrc
 " Since 2011.12.13
-" Last version 2021.12.08
-
-"for python3 path
-if has('win32')
-    let g:python3_host_prog = fnameescape('C:/Users/AC/AppData/Local/Programs/Python/Python310/python.exe') 
-else 
-    let g:python3_host_prog = fnameescape('/C/Users/AC/AppData/Local/Programs/Python/Python310/python.exe') 
-endif
+" Last version 2022.03.10
 
 "for vimproc
 let g:vimproc#download_windows_dll = 1
@@ -17,6 +10,7 @@ set enc=utf-8
 set fenc=utf-8
 "set encoding=japan
 set fileencodings=utf-8,iso-2022-jp,euc-jp,cp932
+set fileformat=unix
 
 "filetype off
 filetype on
@@ -76,9 +70,6 @@ execute 'set runtimepath^=' . s:dein_repo_dir
 if dein#load_state(s:dein_dir)
   call dein#begin(s:dein_dir)
 
- " denite
-  "call dein#add('Shougo/denite.nvim')
-
   " プラグインリストを収めた TOML ファイル
   let s:toml_dir  = $HOME . '/.config/vim' 
   let s:toml      = s:toml_dir . '/dein.toml'
@@ -98,7 +89,7 @@ syntax enable
 
 " API TOKEN
 " See:https://thinca.hatenablog.com/entry/dein-vim-with-graphql-api
-let g:dein#install_github_api_token = 'Your_API_KEY'
+let g:dein#install_github_api_token = 'YOUR_API_KEY'
 
 
 "For ZenCoding
@@ -110,77 +101,135 @@ inoremap <expr> = search('\(&\<Bar><Bar>\<Bar>+\<Bar>-\<Bar>/\<Bar>>\<Bar><\) \%
     \ : search('\(*\<Bar>!\)\%#', 'bcn') ? '= '
     \ : smartchr#one_of('=', ' = ', ' == ', ' === ')
 
-"neocomplcache
-let g:neocomplcache_enable_at_startup=1 
-
 "" reloadable vimrc
 nnoremap <silent> ,r :<C-u>source $MYVIMRC \| if has('gui_running') \| source $MYGVIMRC \| endif<CR>
 
-"" for denite 
-" set denite keymaping
+
+" **************************
+" 
+"      ddu.vim settings.
+"
+" **************************
+"
+call ddu#custom#patch_global({
+    \   'ui': 'ff',
+    \   'sources': [
+    \     {'name':'file','params':{} },
+    \     {'name':'file_rec', 'params': { 'ignoredDirectories': ['.git', 'node_modules', 'vendor', '.next']}},
+    \     {'name':'mr'},
+    \     {'name':'file_point'},
+    \     {'name':'register'},
+    \     {'name':'buffer'},
+    \     {'name': 'colorscheme'},
+    \   ],
+    \   'sourceOptions': {
+    \     '_': {
+    \       'matchers': ['matcher_substring'],
+    \     },
+    \   },
+    \   'kindOptions': {
+    \     'file': {
+    \       'defaultAction': 'open',
+    \     },
+    \     'colorscheme' :{
+    \       'defaultAction': 'set'
+    \     },
+    \   },
+    \ })
+
+autocmd FileType ddu-ff call s:ddu_my_settings()
+function! s:ddu_my_settings() abort
+  nnoremap <buffer><silent> <CR>
+        \ <Cmd>call ddu#ui#ff#do_action('itemAction')<CR>
+  nnoremap <buffer><silent> <Space>
+        \ <Cmd>call ddu#ui#ff#do_action('toggleSelectItem')<CR>
+  nnoremap <buffer><silent> i
+        \ <Cmd>call ddu#ui#ff#do_action('openFilterWindow')<CR>
+  nnoremap <buffer><silent> q
+        \ <Cmd>call ddu#ui#ff#do_action('quit')<CR>
+endfunction
+
+autocmd FileType ddu-ff-filter call s:ddu_filter_my_settings()
+function! s:ddu_filter_my_settings() abort
+  inoremap <buffer><silent> <CR>
+  \ <Esc><Cmd>close<CR>
+  nnoremap <buffer><silent> <CR>
+  \ <Cmd>close<CR>
+  nnoremap <buffer><silent> q
+  \ <Cmd>close<CR>
+endfunction
+
+"" set ddu keymapping
 nnoremap <SID>[ug] <Nop>
 nmap ,u <SID>[ug]
 
-nnoremap <silent> <SID>[ug]m :<C-u>Denite file_mru<CR>
-nnoremap <silent> <SID>[ug]b :<C-u>Denite buffer<CR>
-nnoremap <silent> <SID>[ug]r :<C-u>Denite register<CR>
-nnoremap <silent> <SID>[ug]n :<C-u>DeniteBufferDir file:new<CR>
-nnoremap <silent> <SID>[ug]f :<C-u>Defx -split=vertical -winwidth=40 -search=`expand('%:p')` -direction=topleft `expand('%:p:h')`<CR>
+nnoremap <silent> <SID>[ug]m :<C-u>Ddu mr<CR>
+nnoremap <silent> <SID>[ug]b :<C-u>Ddu buffer<CR>
+nnoremap <silent> <SID>[ug]r :<C-u>Ddu register<CR>
+nnoremap <silent> <SID>[ug]c :<C-u>Ddu file_rec<CR>
+nnoremap <silent> <SID>[ug]n :<C-u>Ddu file -source-param-new -volatile<CR>
+nnoremap <silent> <SID>[ug]f :<C-u>Ddu file<CR>
+nnoremap <silent> <SID>[ug]p :<C-u>Ddu file_point<CR>
+nnoremap <silent> <SID>[ug]l :<C-u>Ddu colorscheme<CR>
 nnoremap <silent> <SID>[ug]s :<C-u>TweetVimSay<CR>
 nnoremap <silent> <SID>[ug]t :<C-u>TweetVimHomeTimeline<CR>
 
 
-" Define mappings
-autocmd FileType denite call s:denite_my_settings()
-function! s:denite_my_settings() abort
-  nnoremap <silent><buffer><expr> <CR>
-  \ denite#do_map('do_action')
-  nnoremap <silent><buffer><expr> d
-  \ denite#do_map('do_action', 'delete')
-  nnoremap <silent><buffer><expr> p
-  \ denite#do_map('do_action', 'preview')
-  nnoremap <silent><buffer><expr> q
-  \ denite#do_map('quit')
-  nnoremap <silent><buffer><expr> i
-  \ denite#do_map('open_filter_buffer')
-  nnoremap <silent><buffer><expr> <Space>
-  \ denite#do_map('toggle_select').'j'
-endfunction
-
-call denite#custom#var('grep', {
-            \ 'command': ['pt'],
-            \ 'default_opts': [
-            \   '-i', '--nogroup', '--nocolor', '--smart-case'],
-            \ 'recursive_opts': [],
-            \ 'pattern_opt': [],
-            \ 'separator': ['--'],
-            \ 'final_opts': [],
-            \ })
 
 
-" For vsnip
-" NOTE: You can use other key to expand snippet.
+" **************************
+" 
+"      ddc.vim settings.
+"
+" **************************
+"
+"
+" Customize global settings
+call ddc#custom#patch_global('sources', ['around','file'])
+call ddc#custom#patch_global('completionMenu', 'pum.vim')
 
-" Expand
-imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
-smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+call ddc#custom#patch_global('sourceOptions', {
+      \ '_': {
+      \   'matchers': ['matcher_head'],
+      \   'sorters': ['sorter_rank'],
+      \   'converters': ['converter_remove_overlap'],
+      \ },
+      \ 'around': {'mark': 'around'},
+      \ 'vim-lsp': {
+      \   'mark': 'LSP', 
+      \   'forceCompletionPattern': '\.\w*|:\w*|->\w*'
+      \ },
+      \ 'file': {
+      \   'mark': 'file',
+      \   'isVolatile': v:true, 
+      \   'forceCompletionPattern': '\S/\S*'
+      \ }})
 
-" Expand or jump
-imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+" Change source options
+call ddc#custom#patch_global('sourceParams', {
+      \ 'around': {'maxSize': 500},
+      \ 'nvim-lsp': { 'kindLabels': { 'Class': 'c' } },
+      \ })
 
-" Jump forward or backward
-imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+" Customize settings on a filetype
+call ddc#custom#patch_filetype('markdown', 'sourceParams', {
+      \ 'around': {'maxSize': 100},
+      \ })
 
-" Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
-" See https://github.com/hrsh7th/vim-vsnip/pull/50
-nmap        s   <Plug>(vsnip-select-text)
-xmap        s   <Plug>(vsnip-select-text)
-nmap        S   <Plug>(vsnip-cut-text)
-xmap        S   <Plug>(vsnip-cut-text)
+" Mappings
+
+" <TAB>: completion.
+inoremap <silent><expr> <TAB>
+\ ddc#map#pum_visible() ? '<C-n>' :
+\ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+\ '<TAB>' : ddc#map#manual_complete()
+
+" <S-TAB>: completion back.
+inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
+
+" Use ddc.
+call ddc#enable()
+
 
 " If you want to use snippet for multiple filetypes, you can `g:vsip_filetypes` for it.
 let g:vsnip_filetypes = {}
@@ -271,11 +320,16 @@ endfunction
 nnoremap <silent> <Space>cd :<C-u>CD<CR>
 
 "for design
-"if !has('gui_running')
-"  set t_Co=256
-"endif
-colorscheme desert
-hi Visual gui=none guifg=khaki guibg=olivedrab
+if !has('gui_running') && has('termguicolors')
+  " Use true colors (recommended)
+  set termguicolors
+endif
+syntax enable
+" for dark theme
+colorscheme hatsunemiku
+" for light theme
+"colorscheme desert
+"hi Visual gui=none guifg=khaki guibg=olivedrab
 
 
 "コマンド実行中は再描画しない
@@ -284,7 +338,7 @@ set lazyredraw
 set ttyfast
 
 "for mac vim
-autocmd VimLeave * macaction terminate:
+"autocmd VimLeave * macaction terminate:
 
 "" vim-quickrun
 let g:quickrun_config = {
@@ -309,62 +363,62 @@ let g:typescript_indent_disable = 1
 command! -nargs=1 -complete=file Rename f <args>|call delete(expand('#'))
 
 
-"For japanese
-if &encoding !=# 'utf-8'
-	set encoding=japan
-	set fileencoding=japan
-endif
-if has('iconv')
-	let s:enc_euc = 'euc-jp'
-	let s:enc_jis = 'iso-2022-jp'
-	" iconvがeucJP-msに対応しているかをチェック
-	if iconv("\x87\x64\x87\x6a", 'cp932', 'eucjp-ms') ==# "\xad\xc5\xad\xcb"
-		let s:enc_euc = 'eucjp-ms'
-		let s:enc_jis = 'iso-2022-jp-3'
-		" iconvがJISX0213に対応しているかをチェック
-	elseif iconv("\x87\x64\x87\x6a", 'cp932', 'euc-jisx0213') ==# "\xad\xc5\xad\xcb"
-		let s:enc_euc = 'euc-jisx0213'
-		let s:enc_jis = 'iso-2022-jp-3'
-	endif
-	" fileencodingsを構築
-	if &encoding ==# 'utf-8'
-		let s:fileencodings_default = &fileencodings
-		let &fileencodings = s:enc_jis .','. s:enc_euc .',cp932'
-		let &fileencodings = &fileencodings .','. s:fileencodings_default
-		unlet s:fileencodings_default
-	else
-		let &fileencodings = &fileencodings .','. s:enc_jis
-		set fileencodings+=utf-8,ucs-2le,ucs-2
-		if &encoding =~# '^\(euc-jp\|euc-jisx0213\|eucjp-ms\)$'
-			set fileencodings+=cp932
-			set fileencodings-=euc-jp
-			set fileencodings-=euc-jisx0213
-			set fileencodings-=eucjp-ms
-			let &encoding = s:enc_euc
-			let &fileencoding = s:enc_euc
-		else
-			let &fileencodings = &fileencodings .','. s:enc_euc
-		endif
-	endif
-	" 定数を処分
-	unlet s:enc_euc
-	unlet s:enc_jis
-endif
-" 日本語を含まない場合は fileencoding に encoding を使うようにする
-if has('autocmd')
-	function! AU_ReCheck_FENC()
-		if &fileencoding =~# 'iso-2022-jp' && search("[^\x01-\x7e]", 'n') == 0
-			let &fileencoding=&encoding
-		endif
-	endfunction
-	autocmd BufReadPost * call AU_ReCheck_FENC()
-endif
-" 改行コードの自動認識
-set fileformats=unix,dos,mac
-" □とか○の文字があってもカーソル位置がずれないようにする
-if exists('&ambiwidth')
-	set ambiwidth=double
-endif
+""For japanese
+"if &encoding !=# 'utf-8'
+"	set encoding=japan
+"	set fileencoding=japan
+"endif
+"if has('iconv')
+"	let s:enc_euc = 'euc-jp'
+"	let s:enc_jis = 'iso-2022-jp'
+"	" iconvがeucJP-msに対応しているかをチェック
+"	if iconv("\x87\x64\x87\x6a", 'cp932', 'eucjp-ms') ==# "\xad\xc5\xad\xcb"
+"		let s:enc_euc = 'eucjp-ms'
+"		let s:enc_jis = 'iso-2022-jp-3'
+"		" iconvがJISX0213に対応しているかをチェック
+"	elseif iconv("\x87\x64\x87\x6a", 'cp932', 'euc-jisx0213') ==# "\xad\xc5\xad\xcb"
+"		let s:enc_euc = 'euc-jisx0213'
+"		let s:enc_jis = 'iso-2022-jp-3'
+"	endif
+"	" fileencodingsを構築
+"	if &encoding ==# 'utf-8'
+"		let s:fileencodings_default = &fileencodings
+"		let &fileencodings = s:enc_jis .','. s:enc_euc .',cp932'
+"		let &fileencodings = &fileencodings .','. s:fileencodings_default
+"		unlet s:fileencodings_default
+"	else
+"		let &fileencodings = &fileencodings .','. s:enc_jis
+"		set fileencodings+=utf-8,ucs-2le,ucs-2
+"		if &encoding =~# '^\(euc-jp\|euc-jisx0213\|eucjp-ms\)$'
+"			set fileencodings+=cp932
+"			set fileencodings-=euc-jp
+"			set fileencodings-=euc-jisx0213
+"			set fileencodings-=eucjp-ms
+"			let &encoding = s:enc_euc
+"			let &fileencoding = s:enc_euc
+"		else
+"			let &fileencodings = &fileencodings .','. s:enc_euc
+"		endif
+"	endif
+"	" 定数を処分
+"	unlet s:enc_euc
+"	unlet s:enc_jis
+"endif
+"" 日本語を含まない場合は fileencoding に encoding を使うようにする
+"if has('autocmd')
+"	function! AU_ReCheck_FENC()
+"		if &fileencoding =~# 'iso-2022-jp' && search("[^\x01-\x7e]", 'n') == 0
+"			let &fileencoding=&encoding
+"		endif
+"	endfunction
+"	autocmd BufReadPost * call AU_ReCheck_FENC()
+"endif
+"" 改行コードの自動認識
+"set fileformats=unix,dos,mac
+"" □とか○の文字があってもカーソル位置がずれないようにする
+"if exists('&ambiwidth')
+"	set ambiwidth=double
+"endif
 
 function! Scouter(file, ...)
   let pat = '^\s*$\|^\s*"'
@@ -397,74 +451,6 @@ function! DisplayAsciiDoc()
     bdelete 
 endfunction
 
-
-" for defx
-autocmd FileType defx call s:defx_my_settings()
-	function! s:defx_my_settings() abort
-	  " Define mappings
-nnoremap <silent><buffer><expr> <CR>
-  \ defx#is_directory() ?
-  \  defx#do_action('open_directory') :
-  \  defx#do_action('multi', ['drop', 'quit'])
-	  nnoremap <silent><buffer><expr> c
-	  \ defx#do_action('copy')
-	  nnoremap <silent><buffer><expr> m
-	  \ defx#do_action('move')
-	  nnoremap <silent><buffer><expr> p
-	  \ defx#do_action('paste')
-	  nnoremap <silent><buffer><expr> l
-	  \ defx#do_action('open')
-  nnoremap <silent><buffer><expr> E
-  \ defx#do_action('multi', [['open', 'vsplit'], 'quit'])	  nnoremap <silent><buffer><expr> P
-	  \ defx#do_action('open', 'pedit')
-	  nnoremap <silent><buffer><expr> o
-	  \ defx#do_action('open_tree', 'toggle')
-	  nnoremap <silent><buffer><expr> K
-	  \ defx#do_action('new_directory')
-	  nnoremap <silent><buffer><expr> N
-	  \ defx#do_action('new_file')
-	  nnoremap <silent><buffer><expr> M
-	  \ defx#do_action('new_multiple_files')
-	  nnoremap <silent><buffer><expr> C
-	  \ defx#do_action('toggle_columns',
-	  \                'mark:indent:icon:filename:type:size:time')
-	  nnoremap <silent><buffer><expr> S
-	  \ defx#do_action('toggle_sort', 'time')
-	  nnoremap <silent><buffer><expr> d
-	  \ defx#do_action('remove')
-	  nnoremap <silent><buffer><expr> r
-	  \ defx#do_action('rename')
-	  nnoremap <silent><buffer><expr> !
-	  \ defx#do_action('execute_command')
-	  nnoremap <silent><buffer><expr> x
-	  \ defx#do_action('execute_system')
-	  nnoremap <silent><buffer><expr> yy
-	  \ defx#do_action('yank_path')
-	  nnoremap <silent><buffer><expr> .
-	  \ defx#do_action('toggle_ignored_files')
-	  nnoremap <silent><buffer><expr> ;
-	  \ defx#do_action('repeat')
-	  nnoremap <silent><buffer><expr> h
-	  \ defx#do_action('cd', ['..'])
-	  nnoremap <silent><buffer><expr> ~
-	  \ defx#do_action('cd')
-	  nnoremap <silent><buffer><expr> q
-	  \ defx#do_action('quit')
-	  nnoremap <silent><buffer><expr> <Space>
-	  \ defx#do_action('toggle_select') . 'j'
-	  nnoremap <silent><buffer><expr> *
-	  \ defx#do_action('toggle_select_all')
-	  nnoremap <silent><buffer><expr> j
-	  \ line('.') == line('$') ? 'gg' : 'j'
-	  nnoremap <silent><buffer><expr> k
-	  \ line('.') == 1 ? 'G' : 'k'
-	  nnoremap <silent><buffer><expr> <C-l>
-	  \ defx#do_action('redraw')
-	  nnoremap <silent><buffer><expr> <C-g>
-	  \ defx#do_action('print')
-	  nnoremap <silent><buffer><expr> cd
-	  \ defx#do_action('change_vim_cwd')
- 	endfunction
 
 " lightline.vim
 let g:lightline = {
@@ -515,8 +501,6 @@ let g:lightline.component_type = {
       \     'linter_errors': 'error',
       \     'linter_ok': 'left'      
       \ }
-
-" let g:lightline.active = { 'right': [[ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_infos', 'linter_ok' ]] }
 
 function! MyModified()
   return &ft =~ 'help\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
@@ -724,3 +708,4 @@ function! GitBash()
 endfunction
 
 nnoremap <Leader>g :<C-u>call GitBash()<CR>
+

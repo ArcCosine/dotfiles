@@ -3,10 +3,68 @@
 repo = 'Shougo/dein.vim'
 
 [[plugins]]
-repo = 'Shougo/denite.nvim'
+repo = 'Shougo/ddu.vim'
 
 [[plugins]]
-repo = 'Shougo/defx.nvim'
+repo = 'Shougo/ddu-ui-ff'
+
+[[plugins]]
+repo = 'Shougo/ddu-source-file_rec'
+
+[[plugins]]
+repo = 'Shougo/ddu-source-file'
+
+[[plugins]]
+repo = 'Shougo/ddu-source-file_point'
+
+[[plugins]]
+repo = 'Shougo/ddu-source-register'
+
+[[plugins]]
+repo = 'Shougo/ddu-filter-matcher_substring'
+
+[[plugins]]
+repo = 'Shougo/ddu-kind-file'
+
+
+[[plugins]]
+repo = 'kuuote/ddu-source-mr'
+
+[[plugins]]
+repo = 'shun/ddu-source-buffer'
+
+[[plugins]]
+repo = 'Shougo/ddu-commands.vim'
+
+[[plugins]]
+repo='4513ECHO/ddu-source-colorscheme'
+
+[[plugins]]
+repo = 'Shougo/ddc.vim'
+
+[[plugins]]
+repo = 'Shougo/ddc-around'
+
+[[plugins]]
+repo = 'Shougo/ddc-matcher_head'
+
+[[plugins]]
+repo = 'Shougo/ddc-sorter_rank'
+
+[[plugins]]
+repo = 'Shougo/ddc-nvim-lsp'
+
+[[plugins]]
+repo = 'LumaKernel/ddc-file'
+
+[[plugins]]
+repo = 'Shougo/ddc-converter_remove_overlap'
+
+[[plugins]]
+repo = 'Shougo/pum.vim'
+
+[[plugins]]
+repo = 'matsui54/ddc-buffer'
 
 [[plugins]]
 repo = 'w0rp/ale'
@@ -18,9 +76,6 @@ repo = 'roxma/nvim-yarp'
 repo = 'roxma/vim-hug-neovim-rpc'
 
 [[plugins]]
-repo = 'Shougo/neomru.vim'
-
-[[plugins]]
 repo = 'Shougo/neosnippet-snippets'
 
 [[plugins]]
@@ -29,12 +84,6 @@ build = 'make'
 
 [[plugins]]
 repo = 'Shougo/context_filetype.vim'
-
-[[plugins]]
-repo = 'Shougo/deoplete.nvim'
-
-[[plugins]]
-repo = 'lighttiger2505/deoplete-vim-lsp'
 
 [[plugins]]
 repo = 'tpope/vim-surround'
@@ -62,6 +111,9 @@ repo = 'mattn/vim-lsp-settings'
 
 [[plugins]]
 repo = 'mattn/vim-lsp-icons'
+
+[[plugins]]
+repo = 'mattn/vimtweak'
 
 [[plugins]]
 repo = 'prabirshrestha/async.vim'
@@ -175,3 +227,34 @@ on_ft = ['javascript', 'typescript', 'vue', 'css', 'scss', 'json', 'markdown']
 hook_source = '''
   autocmd BufWritePre *.js,*.ts,*.vue,*.css,*.scss,*.json,*.md PrettierAsync
 '''
+
+[[plugins]]
+repo = 'vim-denops/denops.vim'
+
+[[plugins]]
+repo = 'lambdalisue/gin.vim'
+
+[[plugins]]
+repo = 'lambdalisue/guise.vim'
+
+[[plugins]]
+repo = 'lambdalisue/askpass.vim'
+
+[[plugins]]
+repo = 'lambdalisue/mr.vim'
+
+[[plugins]]
+repo = 'yukimemi/dps-asyngrep'
+hook_add = '''
+" let g:asyngrep_debug = v:true
+" let g:asyngrep_cfg_path = "~/.asyngrep.toml"
+
+nnoremap <space>ss <cmd>Agp<cr>
+nnoremap <space>sr <cmd>Agp --tool=ripgrep<cr>
+nnoremap <space>sp <cmd>Agp --tool=pt<cr>
+nnoremap <space>sj <cmd>Agp --tool=jvgrep<cr>
+'''
+
+# colorscheme
+[[plugins]]
+repo = '4513ECHO/vim-colors-hatsunemiku'
